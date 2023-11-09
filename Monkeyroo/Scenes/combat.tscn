@@ -1,0 +1,269 @@
+[gd_scene load_steps=13 format=3 uid="uid://cnmkr62fiyhia"]
+
+[ext_resource type="Texture2D" uid="uid://rc566gcakgpn" path="res://icon.svg" id="1_dbkbu"]
+[ext_resource type="Script" path="res://Monkeyroo/Scripts/CombatController.cs" id="1_hb1m6"]
+[ext_resource type="Script" path="res://Monkeyroo/Scripts/CharacterKangaroo.cs" id="2_awkeg"]
+[ext_resource type="Texture2D" uid="uid://bvns6d6w3ti7y" path="res://Monkeyroo/Sprites/Sky.png" id="4_3x0lq"]
+[ext_resource type="Script" path="res://Monkeyroo/Scripts/CharacterMonkey.cs" id="4_k2qld"]
+[ext_resource type="Texture2D" uid="uid://cn5qaelv2uast" path="res://Monkeyroo/Sprites/Foreground.png" id="5_rej1x"]
+[ext_resource type="Texture2D" uid="uid://deu2movfrchf4" path="res://Monkeyroo/Sprites/Clouds.png" id="6_1sq6a"]
+[ext_resource type="Texture2D" uid="uid://c4rsjtq5hfjhy" path="res://Monkeyroo/Sprites/Background.png" id="7_ogji0"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u2gdh"]
+size = Vector2(127.889, 127.385)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_d7pjg"]
+radius = 63.0
+height = 506.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7syng"]
+size = Vector2(126, 256)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cip73"]
+bg_color = Color(0.54902, 0.0196078, 0.196078, 1)
+
+[node name="Combat" type="Node2D" node_paths=PackedStringArray("_combatTimer", "_kangarooCharacter", "_monkeyCharacter", "_timerLabel", "_generationLabel")]
+script = ExtResource("1_hb1m6")
+_combatDuration = 15.0
+_combatTimer = NodePath("Timer")
+_kangarooCharacter = NodePath("Kangaroo")
+_monkeyCharacter = NodePath("Monkey")
+_timerLabel = NodePath("Control/TimeLabel")
+_generationLabel = NodePath("Control/GenerationLabel")
+
+[node name="Ground" type="Node2D" parent="."]
+position = Vector2(576, 663)
+scale = Vector2(9, 1.625)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Ground"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground/StaticBody2D"]
+position = Vector2(-0.0555573, -0.307709)
+shape = SubResource("RectangleShape2D_u2gdh")
+
+[node name="ScreenLimitLeft" type="Node2D" parent="."]
+position = Vector2(-104, 72)
+rotation = 1.5708
+scale = Vector2(9, 1.625)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="ScreenLimitLeft"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ScreenLimitLeft/StaticBody2D"]
+position = Vector2(-0.0555573, -0.307709)
+shape = SubResource("RectangleShape2D_u2gdh")
+
+[node name="ScreenLimitRight" type="Node2D" parent="."]
+position = Vector2(1255, 72)
+rotation = 1.5708
+scale = Vector2(9, 1.625)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="ScreenLimitRight"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ScreenLimitRight/StaticBody2D"]
+position = Vector2(-0.0555573, -0.307709)
+shape = SubResource("RectangleShape2D_u2gdh")
+
+[node name="Kangaroo" type="CharacterBody2D" parent="." node_paths=PackedStringArray("punchArea", "kickArea", "_healthBar", "otherCharacter")]
+position = Vector2(216, 431)
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("2_awkeg")
+JumpVelocity = -700.0
+punchArea = NodePath("PunchHit")
+kickArea = NodePath("KickHit")
+health = 100
+_healthBar = NodePath("../Control/KangarooHealthBar")
+otherCharacter = NodePath("../Monkey")
+Speed = 500.0
+
+[node name="Sprite2D" type="Sprite2D" parent="Kangaroo"]
+self_modulate = Color(0.313726, 0.447059, 0.298039, 1)
+scale = Vector2(1, 2)
+texture = ExtResource("1_dbkbu")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Kangaroo"]
+position = Vector2(0, -125)
+shape = SubResource("CapsuleShape2D_d7pjg")
+
+[node name="HitBox" type="Area2D" parent="Kangaroo"]
+collision_layer = 8
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Kangaroo/HitBox"]
+shape = SubResource("RectangleShape2D_7syng")
+
+[node name="PunchHit" type="Area2D" parent="Kangaroo"]
+position = Vector2(109, -46)
+scale = Vector2(0.72, 0.360002)
+collision_layer = 4
+collision_mask = 8
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Kangaroo/PunchHit"]
+shape = SubResource("RectangleShape2D_7syng")
+
+[node name="Sprite2D" type="Sprite2D" parent="Kangaroo/PunchHit"]
+self_modulate = Color(0.568627, 0.0156863, 0.403922, 1)
+z_index = 1
+scale = Vector2(1, 2)
+texture = ExtResource("1_dbkbu")
+
+[node name="KickHit" type="Area2D" parent="Kangaroo"]
+position = Vector2(109, 82)
+scale = Vector2(0.72, 0.360002)
+collision_layer = 4
+collision_mask = 8
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Kangaroo/KickHit"]
+shape = SubResource("RectangleShape2D_7syng")
+
+[node name="Sprite2D" type="Sprite2D" parent="Kangaroo/KickHit"]
+self_modulate = Color(0.568627, 0.0156863, 0.403922, 1)
+z_index = 1
+scale = Vector2(1, 2)
+texture = ExtResource("1_dbkbu")
+
+[node name="Monkey" type="CharacterBody2D" parent="." node_paths=PackedStringArray("sprite", "punchArea", "highPunchArea", "bodyArea", "hitBoxDuckPosition", "_healthBar", "otherCharacter")]
+position = Vector2(856, 431)
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("4_k2qld")
+sprite = NodePath("Sprite2D")
+punchArea = NodePath("PunchHit")
+highPunchArea = NodePath("HighPunchHit")
+bodyArea = NodePath("HitBox")
+hitBoxDuckPosition = NodePath("HitBoxDuckPosition")
+_characterType = 1
+health = 100
+_healthBar = NodePath("../Control/MonkeyHealthBar")
+otherCharacter = NodePath("../Kangaroo")
+Speed = 500.0
+
+[node name="Sprite2D" type="Sprite2D" parent="Monkey"]
+self_modulate = Color(0.321569, 0.172549, 0.0470588, 1)
+scale = Vector2(1, 2)
+texture = ExtResource("1_dbkbu")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Monkey"]
+position = Vector2(0, -125)
+shape = SubResource("CapsuleShape2D_d7pjg")
+
+[node name="HitBox" type="Area2D" parent="Monkey"]
+collision_layer = 8
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Monkey/HitBox"]
+shape = SubResource("RectangleShape2D_7syng")
+
+[node name="PunchHit" type="Area2D" parent="Monkey"]
+position = Vector2(-109, -46)
+scale = Vector2(0.72, 0.360002)
+collision_layer = 4
+collision_mask = 8
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Monkey/PunchHit"]
+shape = SubResource("RectangleShape2D_7syng")
+
+[node name="Sprite2D" type="Sprite2D" parent="Monkey/PunchHit"]
+self_modulate = Color(0.568627, 0.0156863, 0.403922, 1)
+z_index = 1
+scale = Vector2(1, 2)
+texture = ExtResource("1_dbkbu")
+
+[node name="HighPunchHit" type="Area2D" parent="Monkey"]
+position = Vector2(-109, -159)
+scale = Vector2(0.72, 0.360002)
+collision_layer = 4
+collision_mask = 8
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Monkey/HighPunchHit"]
+shape = SubResource("RectangleShape2D_7syng")
+
+[node name="Sprite2D" type="Sprite2D" parent="Monkey/HighPunchHit"]
+self_modulate = Color(0.568627, 0.0156863, 0.403922, 1)
+z_index = 1
+scale = Vector2(1, 2)
+texture = ExtResource("1_dbkbu")
+
+[node name="HitBoxDuckPosition" type="Node2D" parent="Monkey"]
+position = Vector2(0, 140)
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+
+[node name="KangarooHealthBar" type="ProgressBar" parent="Control"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 520.0
+offset_bottom = 50.0
+theme_override_styles/fill = SubResource("StyleBoxFlat_cip73")
+step = 1.0
+value = 100.0
+rounded = true
+
+[node name="MonkeyHealthBar" type="ProgressBar" parent="Control"]
+layout_mode = 0
+offset_left = 632.0
+offset_top = 20.0
+offset_right = 1132.0
+offset_bottom = 50.0
+theme_override_styles/fill = SubResource("StyleBoxFlat_cip73")
+step = 1.0
+value = 100.0
+rounded = true
+
+[node name="TimeLabel" type="Label" parent="Control"]
+layout_mode = 0
+offset_left = 555.0
+offset_top = 20.0
+offset_right = 596.0
+offset_bottom = 46.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "30:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GenerationLabel" type="Label" parent="Control"]
+layout_mode = 0
+offset_left = 544.0
+offset_top = 46.0
+offset_right = 607.0
+offset_bottom = 72.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Gen 1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Timer" type="Timer" parent="."]
+one_shot = true
+
+[node name="Visuals" type="Node2D" parent="."]
+position = Vector2(578, 209)
+scale = Vector2(0.52, 0.52)
+
+[node name="Sky" type="Sprite2D" parent="Visuals"]
+z_index = -5
+position = Vector2(0, 430.769)
+texture = ExtResource("4_3x0lq")
+
+[node name="Foreground" type="Sprite2D" parent="Visuals"]
+z_index = -2
+position = Vector2(0, 9.61536)
+texture = ExtResource("5_rej1x")
+
+[node name="Clouds" type="Sprite2D" parent="Visuals"]
+z_index = -4
+position = Vector2(0, 430.769)
+texture = ExtResource("6_1sq6a")
+
+[node name="Background" type="Sprite2D" parent="Visuals"]
+z_index = -3
+position = Vector2(0, 430.769)
+texture = ExtResource("7_ogji0")
