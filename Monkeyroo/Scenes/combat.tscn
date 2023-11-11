@@ -63,16 +63,16 @@ scale = Vector2(9, 1.625)
 position = Vector2(-0.0555573, -0.307709)
 shape = SubResource("RectangleShape2D_u2gdh")
 
-[node name="Kangaroo" type="CharacterBody2D" parent="." node_paths=PackedStringArray("punchArea", "kickArea", "_healthBar", "otherCharacter")]
+[node name="Kangaroo" type="CharacterBody2D" parent="." node_paths=PackedStringArray("kickArea", "_healthBar", "punchArea", "otherCharacter")]
 position = Vector2(200, 431)
 collision_layer = 2
 collision_mask = 3
 script = ExtResource("2_awkeg")
 JumpVelocity = -700.0
-punchArea = NodePath("PunchHit")
 kickArea = NodePath("KickHit")
 health = 100
 _healthBar = NodePath("../Control/KangarooHealthBar")
+punchArea = NodePath("PunchHit")
 otherCharacter = NodePath("../Monkey")
 Speed = 500.0
 
@@ -124,19 +124,19 @@ z_index = 1
 scale = Vector2(1, 2)
 texture = ExtResource("1_dbkbu")
 
-[node name="Monkey" type="CharacterBody2D" parent="." node_paths=PackedStringArray("sprite", "punchArea", "highPunchArea", "bodyArea", "hitBoxDuckPosition", "_healthBar", "otherCharacter")]
+[node name="Monkey" type="CharacterBody2D" parent="." node_paths=PackedStringArray("sprite", "highPunchArea", "bodyArea", "hitBoxDuckPosition", "_healthBar", "punchArea", "otherCharacter")]
 position = Vector2(950, 431)
 collision_layer = 2
 collision_mask = 3
 script = ExtResource("4_k2qld")
 sprite = NodePath("Sprite2D")
-punchArea = NodePath("PunchHit")
 highPunchArea = NodePath("HighPunchHit")
 bodyArea = NodePath("HitBox")
 hitBoxDuckPosition = NodePath("HitBoxDuckPosition")
 _characterType = 1
 health = 100
 _healthBar = NodePath("../Control/MonkeyHealthBar")
+punchArea = NodePath("PunchHit")
 otherCharacter = NodePath("../Kangaroo")
 Speed = -500.0
 

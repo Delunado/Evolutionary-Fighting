@@ -13,6 +13,10 @@ public abstract partial class Character : CharacterBody2D
 	private int _maxHealth;
 	[Export] private ProgressBar _healthBar;
 
+	[Export] private Area2D punchArea;
+	protected bool _isDoingAttack = false;
+	protected bool _attackFinished = false;
+
 	[Export] protected Character otherCharacter;
 
 	[Export] protected float Speed = 300.0f;
@@ -35,6 +39,15 @@ public abstract partial class Character : CharacterBody2D
 
 		_healthBar.MaxValue = health;
 		_healthBar.Value = health;
+
+		punchArea.Monitoring = false;
+		punchArea.Visible = false;
+		punchArea.AreaEntered += (area) =>
+		{
+			_sucessfulHits++;
+			_damageDealt += 15;
+			otherCharacter.TakeDamage(15);
+		};
 	}
 
 	public void InjectStrategy(Strategy strategy)
@@ -44,7 +57,7 @@ public abstract partial class Character : CharacterBody2D
 
 	protected void UpdateBehaviour()
 	{
-		_strategy.Execute();
+		_strategy.Execute(this);
 	}
 
 	public void Stop()
@@ -77,31 +90,62 @@ public abstract partial class Character : CharacterBody2D
 		return sessionData;
 	}
 
-	protected bool IsNearEnemyCondition()
-	{
-		return Mathf.Abs(otherCharacter.Position.X - Position.X) < 175.0f;
-	}
-
-	protected bool IsFarFromEnemyCondition()
-	{
-		return Mathf.Abs(otherCharacter.Position.X - Position.X) > 175.0f;
-	}
-
-	protected BehaviourNode.NodeStatus MoveFrontAction()
+	public void MoveFront()
 	{
 		Vector2 velocity = Velocity;
 		velocity.X = Speed;
 		Velocity = velocity;
-
-		return BehaviourNode.NodeStatus.Success;
 	}
 
-	protected BehaviourNode.NodeStatus MoveBackAction()
+	public void MoveBack()
 	{
 		Vector2 velocity = Velocity;
 		velocity.X = -Speed;
 		Velocity = velocity;
+	}
 
-		return BehaviourNode.NodeStatus.Success;
+	public bool IsEnemyNear()
+	{
+		return Mathf.Abs(otherCharacter.Position.X - Position.X) < 175.0f;
+	}
+
+	public bool IsEnemyFar()
+	{
+		return Mathf.Abs(otherCharacter.Position.X - Position.X) > 175.0f;
+	}
+
+	protected abstract bool CanAttack();
+
+	public BehaviourNode.NodeStatus AttackPunchAction()
+	{
+		if (!CanAttack()) return BehaviourNode.NodeStatus.Failure;
+		if (_isDoingAttack) return BehaviourNode.NodeStatus.Running;
+
+		if (_attackFinished)
+		{
+			_attackFinished = false;
+			_isDoingAttack = false;
+			return BehaviourNode.NodeStatus.Success;
+		}
+
+		Vector2 velocity = Velocity;
+		velocity.X = 0;
+		Velocity = velocity;
+
+		punchArea.Monitoring = true;
+		punchArea.Visible = true;
+
+		_totalHits++;
+		_isDoingAttack = true;
+
+		GetTree().CreateTimer(0.2f).Timeout += () =>
+		{
+			punchArea.Monitoring = false;
+			punchArea.Visible = false;
+			_isDoingAttack = false;
+			_attackFinished = true;
+		};
+
+		return BehaviourNode.NodeStatus.Running;
 	}
 }

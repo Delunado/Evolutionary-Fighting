@@ -9,5 +9,5 @@ public abstract class BehaviourNode
         Running
     }
 
-    public abstract NodeStatus Evaluate();
+    public abstract NodeStatus Evaluate(Character character);
 }

@@ -36,13 +36,10 @@ public partial class EvolutionManager : Node2D
     private EvolutionCrossoverStrategy _crossoverStrategy;
     private EvolutionMutationStrategy _mutationStrategy;
 
-    private Random _rng;
 
     //This creates each generation and evaluates and evolves the population
     public override void _Ready()
     {
-        _rng = new Random();
-
         _fitnessCalculus = new EvolutionFitnessCalculus();
         _selectionStrategy = new EvolutionSelectionStrategy(_populationSize, _percentageOfStrategiesToSelect, _tournamentSize);
         _crossoverStrategy = new EvolutionCrossoverStrategy();
@@ -56,6 +53,12 @@ public partial class EvolutionManager : Node2D
     {
         _kangarooStrategies = new List<Strategy>(_populationSize);
         _monkeyStrategies = new List<Strategy>(_populationSize);
+
+        for (int i = 0; i < _populationSize; i++)
+        {
+            _kangarooStrategies.Add(CreateRandomStrategy());
+            _monkeyStrategies.Add(CreateRandomStrategy());
+        }
     }
 
     private void CreateNewGeneration()
@@ -69,12 +72,6 @@ public partial class EvolutionManager : Node2D
 
             combatSceneInstance.GlobalPosition = new Vector2(0, 1920 * i);
             combatSceneInstance.Visible = i == 0;
-
-            if (_currentGeneration == 0)
-            {
-                _kangarooStrategies.Add(CreateRandomStrategy(combatSceneInstance.KangarooBehaviourNodes));
-                _monkeyStrategies.Add(CreateRandomStrategy(combatSceneInstance.MonkeyBehaviourNodes));
-            }
 
             combatSceneInstance.Config(_kangarooStrategies[i], _monkeyStrategies[i], _currentGeneration + 1);
 
@@ -156,14 +153,15 @@ public partial class EvolutionManager : Node2D
         _monkeyStrategies = newMonkeyStrategies;
     }
 
-    private Strategy CreateRandomStrategy(List<BehaviourNode> behaviourNodes)
+    private Strategy CreateRandomStrategy()
     {
         List<BehaviourNode> behaviourNodesRoot = new List<BehaviourNode>();
 
         for (int i = 0; i < _randomStrategySequenceLenght; i++)
         {
-            BehaviourNode randomBehaviourNode = behaviourNodes[GD.RandRange(0, behaviourNodes.Count - 1)];
-            behaviourNodesRoot.Add(randomBehaviourNode);
+            //Crear behaviours nuevos cada vez
+            //BehaviourNode randomBehaviourNode = behaviourNodes[GD.RandRange(0, behaviourNodes.Count - 1)];
+            //behaviourNodesRoot.Add(randomBehaviourNode);
         }
 
         BehaviourNode root = new SequenceNode(behaviourNodesRoot);

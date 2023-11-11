@@ -11,11 +11,11 @@ public class SequenceNode : BehaviourNode
         _children = children;
     }
 
-    public override NodeStatus Evaluate()
+    public override NodeStatus Evaluate(Character character)
     {
         foreach (BehaviourNode child in _children)
         {
-            NodeStatus status = child.Evaluate();
+            NodeStatus status = child.Evaluate(character);
 
             if (status != NodeStatus.Success)
             {

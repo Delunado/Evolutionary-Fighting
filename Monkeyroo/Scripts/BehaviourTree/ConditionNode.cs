@@ -5,15 +5,15 @@ namespace Character.BehaviourTree;
 
 public class ConditionNode : BehaviourNode
 {
-    private Func<bool> _condition;
+    private ICharacterCondition _condition;
 
-    public ConditionNode(Func<bool> condition)
+    public ConditionNode(ICharacterCondition condition)
     {
         _condition = condition;
     }
 
-    public override NodeStatus Evaluate()
+    public override NodeStatus Evaluate(Character character)
     {
-        return _condition() ? NodeStatus.Success : NodeStatus.Failure;
+        return _condition.Check(character) ? NodeStatus.Success : NodeStatus.Failure;
     }
 }

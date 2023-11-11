@@ -5,15 +5,15 @@ namespace Character.BehaviourTree;
 
 public class ActionNode : BehaviourNode
 {
-    private Func<NodeStatus> _action;
+    private ICharacterAction _action;
 
-    public ActionNode(Func<NodeStatus> action)
+    public ActionNode(ICharacterAction action)
     {
         _action = action;
     }
 
-    public override NodeStatus Evaluate()
+    public override NodeStatus Evaluate(Character character)
     {
-        return _action();
+        return _action.Execute(character);
     }
 }

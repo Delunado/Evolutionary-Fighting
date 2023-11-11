@@ -15,9 +15,6 @@ public partial class CombatController : Node2D
     [Export] private Label _timerLabel;
     [Export] private Label _generationLabel;
 
-    public List<BehaviourNode> KangarooBehaviourNodes => _kangarooCharacter.BehavioursPool;
-    public List<BehaviourNode> MonkeyBehaviourNodes => _monkeyCharacter.BehavioursPool;
-
     public event Action<SessionData> CombatEnded;
 
     public override void _Ready()

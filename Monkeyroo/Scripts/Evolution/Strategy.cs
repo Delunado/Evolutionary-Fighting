@@ -7,15 +7,15 @@ public class Strategy
 {
     private BehaviourNode _behaviourTreeRoot;
     public float Fitness { get; set; }
-    
-    
+
+
     public Strategy(BehaviourNode root)
     {
         _behaviourTreeRoot = root;
     }
 
-    public BehaviourNode.NodeStatus Execute()
+    public BehaviourNode.NodeStatus Execute(Character character)
     {
-        return _behaviourTreeRoot.Evaluate();
+        return _behaviourTreeRoot.Evaluate(character);
     }
 }
