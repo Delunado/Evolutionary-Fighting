@@ -1,6 +1,6 @@
 [gd_scene load_steps=13 format=3 uid="uid://cnmkr62fiyhia"]
 
-[ext_resource type="Texture2D" uid="uid://rc566gcakgpn" path="res://icon.svg" id="1_dbkbu"]
+[ext_resource type="Texture2D" uid="uid://rc566gcakgpn" path="res://Monkeyroo/Sprites/icon.svg" id="1_dbkbu"]
 [ext_resource type="Script" path="res://Monkeyroo/Scripts/CombatController.cs" id="1_hb1m6"]
 [ext_resource type="Script" path="res://Monkeyroo/Scripts/CharacterKangaroo.cs" id="2_awkeg"]
 [ext_resource type="Texture2D" uid="uid://bvns6d6w3ti7y" path="res://Monkeyroo/Sprites/Sky.png" id="4_3x0lq"]
@@ -64,7 +64,7 @@ position = Vector2(-0.0555573, -0.307709)
 shape = SubResource("RectangleShape2D_u2gdh")
 
 [node name="Kangaroo" type="CharacterBody2D" parent="." node_paths=PackedStringArray("punchArea", "kickArea", "_healthBar", "otherCharacter")]
-position = Vector2(216, 431)
+position = Vector2(200, 431)
 collision_layer = 2
 collision_mask = 3
 script = ExtResource("2_awkeg")
@@ -125,7 +125,7 @@ scale = Vector2(1, 2)
 texture = ExtResource("1_dbkbu")
 
 [node name="Monkey" type="CharacterBody2D" parent="." node_paths=PackedStringArray("sprite", "punchArea", "highPunchArea", "bodyArea", "hitBoxDuckPosition", "_healthBar", "otherCharacter")]
-position = Vector2(856, 431)
+position = Vector2(950, 431)
 collision_layer = 2
 collision_mask = 3
 script = ExtResource("4_k2qld")
@@ -138,7 +138,7 @@ _characterType = 1
 health = 100
 _healthBar = NodePath("../Control/MonkeyHealthBar")
 otherCharacter = NodePath("../Kangaroo")
-Speed = 500.0
+Speed = -500.0
 
 [node name="Sprite2D" type="Sprite2D" parent="Monkey"]
 self_modulate = Color(0.321569, 0.172549, 0.0470588, 1)

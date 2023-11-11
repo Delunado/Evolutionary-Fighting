@@ -6,11 +6,11 @@ public class EvolutionFitnessCalculus
 {
     public float CalculateFitness(SessionData sessionData, CharacterWinnerType characterWinnerType)
     {
-        float healthWeight = 1.2f;
-        float winWeight = 1.75f;
+        float healthWeight = 1.9f;
+        float winWeight = 1.0f;
         float hitsWeight = 1.3f;
         float damageWeight = 1.2f;
-        float survivalWeight = 1.75f;
+        float survivalWeight = 3.0f;
 
         float healthFitness = sessionData.KangarooData.HealthNormalized;
         float damageFitness = sessionData.KangarooData.DamageDealtNormalized;

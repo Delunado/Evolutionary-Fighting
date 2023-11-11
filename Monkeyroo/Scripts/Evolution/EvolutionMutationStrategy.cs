@@ -19,7 +19,7 @@ public class EvolutionMutationStrategy
 
     public void Mutation(List<Strategy> strategies, CharacterType characterType)
     {
-        foreach (Strategy strategy in strategies)
+        /*foreach (Strategy strategy in strategies)
         {
             foreach (MoveGene moveGene in strategy.MovesSequence)
             {
@@ -55,6 +55,6 @@ public class EvolutionMutationStrategy
                     }
                 }
             }
-        }
+        }*/
     }
 }

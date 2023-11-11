@@ -6,7 +6,7 @@
 [node name="EvolutionManager" type="Node2D"]
 script = ExtResource("1_2ly7g")
 _combatScene = ExtResource("2_0m3ah")
-_populationSize = 300
+_populationSize = 1
 _maxMovementDuration = 0.5
 _percentageOfStrategiesToSelect = 0.25
 _mutationRate = 0.15

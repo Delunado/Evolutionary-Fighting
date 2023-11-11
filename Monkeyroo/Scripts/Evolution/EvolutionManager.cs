@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
+using Character.BehaviourTree;
 using Godot;
 
 namespace Character;
@@ -13,7 +14,7 @@ public partial class EvolutionManager : Node2D
     [ExportGroup("Evolution Parameters")] [Export]
     private int _populationSize = 100;
 
-    [Export] private int _randomStrategySequenceLenght = 75;
+    [Export] private int _randomStrategySequenceLenght = 3;
 
     [Export] private float _maxMovementDuration;
 
@@ -55,12 +56,6 @@ public partial class EvolutionManager : Node2D
     {
         _kangarooStrategies = new List<Strategy>(_populationSize);
         _monkeyStrategies = new List<Strategy>(_populationSize);
-
-        for (int i = 0; i < _populationSize; i++)
-        {
-            _kangarooStrategies.Add(CreateRandomStrategy(CharacterType.Kangaroo));
-            _monkeyStrategies.Add(CreateRandomStrategy(CharacterType.Monkey));
-        }
     }
 
     private void CreateNewGeneration()
@@ -74,6 +69,12 @@ public partial class EvolutionManager : Node2D
 
             combatSceneInstance.GlobalPosition = new Vector2(0, 1920 * i);
             combatSceneInstance.Visible = i == 0;
+
+            if (_currentGeneration == 0)
+            {
+                _kangarooStrategies.Add(CreateRandomStrategy(combatSceneInstance.KangarooBehaviourNodes));
+                _monkeyStrategies.Add(CreateRandomStrategy(combatSceneInstance.MonkeyBehaviourNodes));
+            }
 
             combatSceneInstance.Config(_kangarooStrategies[i], _monkeyStrategies[i], _currentGeneration + 1);
 
@@ -155,31 +156,20 @@ public partial class EvolutionManager : Node2D
         _monkeyStrategies = newMonkeyStrategies;
     }
 
-    private Strategy CreateRandomStrategy(CharacterType characterType)
+    private Strategy CreateRandomStrategy(List<BehaviourNode> behaviourNodes)
     {
-        List<MoveGene> moves = new List<MoveGene>();
+        List<BehaviourNode> behaviourNodesRoot = new List<BehaviourNode>();
 
-        // Generate a random sequence of moves
         for (int i = 0; i < _randomStrategySequenceLenght; i++)
         {
-            MoveType randomMove = (MoveType) _rng.Next(Enum.GetValues(typeof(MoveType)).Length);
-
-            if (randomMove is MoveType.Duck or MoveType.Jump)
-            {
-                randomMove = characterType == CharacterType.Monkey ? MoveType.Duck : MoveType.Jump;
-            }
-
-            if (randomMove is MoveType.AttackHighPunch or MoveType.AttackKick)
-            {
-                randomMove = characterType == CharacterType.Monkey ? MoveType.AttackHighPunch : MoveType.AttackKick;
-            }
-
-            float randomTiming = (float) (_rng.NextDouble() * _maxMovementDuration);
-
-            moves.Add(new MoveGene(randomMove, randomTiming));
+            BehaviourNode randomBehaviourNode = behaviourNodes[GD.RandRange(0, behaviourNodes.Count - 1)];
+            behaviourNodesRoot.Add(randomBehaviourNode);
         }
 
-        Strategy strategy = new Strategy(moves);
+        BehaviourNode root = new SequenceNode(behaviourNodesRoot);
+
+        Strategy strategy = new Strategy(root);
+
         return strategy;
     }
 }

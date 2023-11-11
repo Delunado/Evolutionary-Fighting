@@ -1,129 +1,167 @@
 using System;
+using Character.BehaviourTree;
 using Godot;
 
 namespace Character;
 
 public partial class CharacterMonkey : Character
 {
-	[Export] private Sprite2D sprite;
-	[Export] private Area2D punchArea;
-	[Export] private Area2D highPunchArea;
-	[Export] private Area2D bodyArea;
-	[Export] private Node2D hitBoxDuckPosition;
+    [Export] private Sprite2D sprite;
+    [Export] private Area2D punchArea;
+    [Export] private Area2D highPunchArea;
+    [Export] private Area2D bodyArea;
+    [Export] private Node2D hitBoxDuckPosition;
 
-	protected override event Action FinishedMovement;
-	
-	public override void _Ready()
-	{
-		InitialConfiguration();
-		
-		punchArea.Monitoring = false;
-		punchArea.Visible = false;
-		punchArea.AreaEntered += (area) =>
-		{
-			_sucessfulHits++;
-			_damageDealt += 15;
-			otherCharacter.TakeDamage(15);
-		};
-		
-		highPunchArea.Monitoring = false;
-		highPunchArea.Visible = false;
-		highPunchArea.AreaEntered += (area) =>
-		{
-			_sucessfulHits++;
-			_damageDealt += 10;
-			otherCharacter.TakeDamage(10);
-		};
-	}
-	
-	public override void _PhysicsProcess(double delta)
-	{
-		if (_stopped) return;
+    private bool _isDoingAttack = false;
+    private bool _attackFinished = false;
 
-		MoveAndSlide();
+    private bool _isDucking = false;
+    private bool _finishedDuck = false;
 
-		if (!_canDoNextMovement) return;
+    public CharacterMonkey()
+    {
+        ConditionNode nearEnemyCondition = new ConditionNode(IsNearEnemyCondition);
+        ConditionNode farFromEnemyCondition = new ConditionNode(IsFarFromEnemyCondition);
+        ActionNode moveFrontAction = new ActionNode(MoveFrontAction);
+        ActionNode moveBackAction = new ActionNode(MoveBackAction);
+        ActionNode attackPunchAction = new ActionNode(AttackPunchAction);
+        ActionNode attackHighPunchAction = new ActionNode(AttackHighPunchAction);
+        ActionNode duckAction = new ActionNode(DuckAction);
 
-		MoveGene moveGene = ChooseMove();
-		PerformMove(moveGene.MoveType, moveGene.Duration);
-	}
+        _behavioursPool.Add(nearEnemyCondition);
+        _behavioursPool.Add(farFromEnemyCondition);
+        _behavioursPool.Add(moveFrontAction);
+        _behavioursPool.Add(moveBackAction);
+        _behavioursPool.Add(attackPunchAction);
+        _behavioursPool.Add(attackHighPunchAction);
+        _behavioursPool.Add(duckAction);
+    }
 
-	protected override void PerformMove(MoveType moveType, float duration)
-	{
-		_canDoNextMovement = false;
-		Vector2 velocity = Velocity;
-		velocity.X = 0;
+    public override void _Ready()
+    {
+        InitialConfiguration();
 
-		switch (moveType)
-		{
-			case MoveType.MoveFront:
-				velocity.X = Speed;
-				Velocity = velocity;
+        punchArea.Monitoring = false;
+        punchArea.Visible = false;
+        punchArea.AreaEntered += (area) =>
+        {
+            _sucessfulHits++;
+            _damageDealt += 15;
+            otherCharacter.TakeDamage(15);
+        };
 
-				GetTree().CreateTimer(duration).Timeout += () => { FinishedMovement?.Invoke(); };
+        highPunchArea.Monitoring = false;
+        highPunchArea.Visible = false;
+        highPunchArea.AreaEntered += (area) =>
+        {
+            _sucessfulHits++;
+            _damageDealt += 10;
+            otherCharacter.TakeDamage(10);
+        };
+    }
 
-				break;
+    public override void _PhysicsProcess(double delta)
+    {
+        if (_stopped) return;
 
-			case MoveType.MoveBack:
-				velocity.X = -Speed;
-				Velocity = velocity;
+        UpdateBehaviour();
 
-				GetTree().CreateTimer(duration).Timeout += () => { FinishedMovement?.Invoke(); };
+        MoveAndSlide();
+    }
 
-				break;
+    private BehaviourNode.NodeStatus AttackPunchAction()
+    {
+        if (_isDucking) return BehaviourNode.NodeStatus.Failure;
+        if (_isDoingAttack) return BehaviourNode.NodeStatus.Running;
 
-			case MoveType.AttackPunch:
-				velocity.X = 0;
-				Velocity = velocity;
+        if (_attackFinished)
+        {
+            _attackFinished = false;
+            _isDoingAttack = false;
+            return BehaviourNode.NodeStatus.Success;
+        }
 
-				_totalHits++;
-				punchArea.Monitoring = true;
-				punchArea.Visible = true;
+        Vector2 velocity = Velocity;
+        velocity.X = 0;
+        Velocity = velocity;
 
-				GetTree().CreateTimer(0.2f).Timeout += () =>
-				{
-					punchArea.Monitoring = false;
-					punchArea.Visible = false;
-					FinishedMovement?.Invoke();
-				};
+        punchArea.Monitoring = true;
+        punchArea.Visible = true;
 
-				break;
+        _totalHits++;
+        _isDoingAttack = true;
 
-			case MoveType.AttackHighPunch:
-				velocity.X = 0;
-				Velocity = velocity;
+        GetTree().CreateTimer(0.2f).Timeout += () =>
+        {
+            punchArea.Monitoring = false;
+            punchArea.Visible = false;
+            _attackFinished = true;
+        };
 
-				_totalHits++;
-				highPunchArea.Monitoring = true;
-				highPunchArea.Visible = true;
+        return BehaviourNode.NodeStatus.Running;
+    }
 
-				GetTree().CreateTimer(0.3f).Timeout += () =>
-				{
-					highPunchArea.Monitoring = false;
-					highPunchArea.Visible = false;
-					FinishedMovement?.Invoke();
-				};
+    private BehaviourNode.NodeStatus AttackHighPunchAction()
+    {
+        if (_isDucking) return BehaviourNode.NodeStatus.Failure;
+        if (_isDoingAttack) return BehaviourNode.NodeStatus.Running;
 
-				break;
+        if (_attackFinished)
+        {
+            _attackFinished = false;
+            _isDoingAttack = false;
+            return BehaviourNode.NodeStatus.Success;
+        }
 
-			case MoveType.Duck:
-				velocity.X = 0;
-				Velocity = velocity;
+        Vector2 velocity = Velocity;
+        velocity.X = 0;
+        Velocity = velocity;
 
-				bodyArea.Position = hitBoxDuckPosition.Position;
-				sprite.Position = hitBoxDuckPosition.Position;
+        highPunchArea.Monitoring = true;
+        highPunchArea.Visible = true;
 
-				GetTree().CreateTimer(duration).Timeout += () =>
-				{
-					sprite.Position = Vector2.Zero;
-					bodyArea.Position = Vector2.Zero;
-					FinishedMovement?.Invoke();
-				};
+        _totalHits++;
+        _isDoingAttack = true;
 
-				break;
+        GetTree().CreateTimer(0.3f).Timeout += () =>
+        {
+            highPunchArea.Monitoring = false;
+            highPunchArea.Visible = false;
+            _attackFinished = true;
+        };
 
-			default:
-				throw new ArgumentOutOfRangeException(nameof(moveType), moveType, null);
-		}
-	}
+        return BehaviourNode.NodeStatus.Running;
+    }
+
+    private BehaviourNode.NodeStatus DuckAction()
+    {
+        if (_isDucking) return BehaviourNode.NodeStatus.Running;
+
+        if (_finishedDuck)
+        {
+            _finishedDuck = false;
+            return BehaviourNode.NodeStatus.Success;
+        }
+
+        Vector2 velocity = Velocity;
+        velocity.X = 0;
+        Velocity = velocity;
+
+        bodyArea.Position = hitBoxDuckPosition.Position;
+        sprite.Position = hitBoxDuckPosition.Position;
+
+        _isDucking = true;
+        _finishedDuck = false;
+
+        GetTree().CreateTimer(0.4f).Timeout += () =>
+        {
+            sprite.Position = Vector2.Zero;
+            bodyArea.Position = Vector2.Zero;
+
+            _isDucking = false;
+            _finishedDuck = true;
+        };
+
+        return BehaviourNode.NodeStatus.Running;
+    }
 }

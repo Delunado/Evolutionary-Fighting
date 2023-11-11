@@ -1,27 +1,21 @@
 ﻿using System.Collections.Generic;
+using Character.BehaviourTree;
 
 namespace Character;
 
 public class Strategy
 {
-    public List<MoveGene> MovesSequence { get; private set; }
+    private BehaviourNode _behaviourTreeRoot;
     public float Fitness { get; set; }
-
     
-    int _currentMoveIndex = 0;
     
-    public Strategy(List<MoveGene> movesSequence)
+    public Strategy(BehaviourNode root)
     {
-        MovesSequence = movesSequence;
+        _behaviourTreeRoot = root;
     }
-    
-    public MoveGene GetNextMove()
+
+    public BehaviourNode.NodeStatus Execute()
     {
-        if (_currentMoveIndex >= MovesSequence.Count)
-        {
-            _currentMoveIndex = 0;
-        }
-        
-        return MovesSequence[_currentMoveIndex++];
+        return _behaviourTreeRoot.Evaluate();
     }
 }

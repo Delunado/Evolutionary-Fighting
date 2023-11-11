@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Character.BehaviourTree;
 using Godot;
 
 namespace Character;
@@ -12,6 +14,9 @@ public partial class CombatController : Node2D
     [Export] private Character _monkeyCharacter;
     [Export] private Label _timerLabel;
     [Export] private Label _generationLabel;
+
+    public List<BehaviourNode> KangarooBehaviourNodes => _kangarooCharacter.BehavioursPool;
+    public List<BehaviourNode> MonkeyBehaviourNodes => _monkeyCharacter.BehavioursPool;
 
     public event Action<SessionData> CombatEnded;
 

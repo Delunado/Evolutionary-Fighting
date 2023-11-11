@@ -14,7 +14,7 @@ public class EvolutionCrossoverStrategy
 
     public Strategy Crossover(Strategy parent1, Strategy parent2)
     {
-        List<MoveGene> moves = new List<MoveGene>();
+        /*List<MoveGene> moves = new List<MoveGene>();
 
         int minLength = Math.Min(parent1.MovesSequence.Count, parent2.MovesSequence.Count);
         int maxLength = Math.Max(parent1.MovesSequence.Count, parent2.MovesSequence.Count);
@@ -35,6 +35,8 @@ public class EvolutionCrossoverStrategy
         }
 
         Strategy offspringStrategy = new Strategy(moves);
-        return offspringStrategy;
+        return offspringStrategy;*/
+
+        return new Strategy(new BehaviourTree.SequenceNode(new List<BehaviourTree.BehaviourNode>()));
     }
 }
