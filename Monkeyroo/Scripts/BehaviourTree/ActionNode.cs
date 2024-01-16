@@ -11,9 +11,14 @@ public class ActionNode : BehaviourNode
     {
         _action = action;
     }
-
+    
     public override NodeStatus Evaluate(Character character)
     {
         return _action.Execute(character);
+    }
+
+    public override BehaviourNode Clone()
+    {
+        return new ActionNode(_action);
     }
 }

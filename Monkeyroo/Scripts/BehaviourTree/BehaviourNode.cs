@@ -8,6 +8,7 @@ public abstract class BehaviourNode
         Failure,
         Running
     }
-
+    
     public abstract NodeStatus Evaluate(Character character);
+    public abstract BehaviourNode Clone();
 }

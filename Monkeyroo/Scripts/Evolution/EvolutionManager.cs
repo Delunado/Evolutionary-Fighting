@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
 using Character.BehaviourTree;
+using Character.CharacterBehaviour;
 using Godot;
 
 namespace Character;
@@ -36,6 +37,9 @@ public partial class EvolutionManager : Node2D
     private EvolutionCrossoverStrategy _crossoverStrategy;
     private EvolutionMutationStrategy _mutationStrategy;
 
+    private List<BehaviourNode> _behavioursPoolKangaroo = new List<BehaviourNode>();
+    private List<BehaviourNode> _behavioursPoolMonkey = new List<BehaviourNode>();
+
 
     //This creates each generation and evaluates and evolves the population
     public override void _Ready()
@@ -44,6 +48,49 @@ public partial class EvolutionManager : Node2D
         _selectionStrategy = new EvolutionSelectionStrategy(_populationSize, _percentageOfStrategiesToSelect, _tournamentSize);
         _crossoverStrategy = new EvolutionCrossoverStrategy();
         _mutationStrategy = new EvolutionMutationStrategy(_mutationRate, _maxMovementDuration);
+
+        ConditionNode nearEnemyCondition = new ConditionNode(new EnemyNearCondition());
+        ConditionNode farFromEnemyCondition = new ConditionNode(new EnemyFarCondition());
+        ConditionNode enemyLowHealthCondition = new ConditionNode(new EnemyLowHealthCondition());
+        ConditionNode enemyHighHealthCondition = new ConditionNode(new EnemyHighHealthCondition());
+        ConditionNode characterLowHealthCondition = new ConditionNode(new CharacterLowHealthCondition());
+        ConditionNode characterHighHealthCondition = new ConditionNode(new CharacterHighHealthCondition());
+
+        ActionNode moveFrontAction = new ActionNode(new MoveFrontAction());
+        ActionNode moveBackAction = new ActionNode(new MoveBackAction());
+        ActionNode attackPunchAction = new ActionNode(new PunchAttackAction());
+
+        ActionNode attackKickAction = new ActionNode(new KickAttackAction());
+        ActionNode jumpAction = new ActionNode(new JumpAction());
+
+        ActionNode attackHighPunch = new ActionNode(new HighPunchAttackAction());
+        ActionNode duckAction = new ActionNode(new DuckAction());
+
+        _behavioursPoolKangaroo.Add(nearEnemyCondition);
+        _behavioursPoolKangaroo.Add(farFromEnemyCondition);
+        _behavioursPoolKangaroo.Add(enemyLowHealthCondition);
+        _behavioursPoolKangaroo.Add(enemyHighHealthCondition);
+        _behavioursPoolKangaroo.Add(characterLowHealthCondition);
+        _behavioursPoolKangaroo.Add(characterHighHealthCondition);
+
+        _behavioursPoolKangaroo.Add(moveFrontAction);
+        _behavioursPoolKangaroo.Add(moveBackAction);
+        _behavioursPoolKangaroo.Add(attackPunchAction);
+        _behavioursPoolKangaroo.Add(attackKickAction);
+        _behavioursPoolKangaroo.Add(jumpAction);
+
+        _behavioursPoolMonkey.Add(nearEnemyCondition);
+        _behavioursPoolMonkey.Add(farFromEnemyCondition);
+        _behavioursPoolMonkey.Add(enemyLowHealthCondition);
+        _behavioursPoolMonkey.Add(enemyHighHealthCondition);
+        _behavioursPoolMonkey.Add(characterLowHealthCondition);
+        _behavioursPoolMonkey.Add(characterHighHealthCondition);
+
+        _behavioursPoolMonkey.Add(moveFrontAction);
+        _behavioursPoolMonkey.Add(moveBackAction);
+        _behavioursPoolMonkey.Add(attackPunchAction);
+        _behavioursPoolMonkey.Add(attackHighPunch);
+        _behavioursPoolMonkey.Add(duckAction);
 
         InitializePopulation();
         CreateNewGeneration();
@@ -56,8 +103,8 @@ public partial class EvolutionManager : Node2D
 
         for (int i = 0; i < _populationSize; i++)
         {
-            _kangarooStrategies.Add(CreateRandomStrategy());
-            _monkeyStrategies.Add(CreateRandomStrategy());
+            _kangarooStrategies.Add(CreateRandomStrategy(CharacterType.Kangaroo));
+            _monkeyStrategies.Add(CreateRandomStrategy(CharacterType.Monkey));
         }
     }
 
@@ -153,21 +200,39 @@ public partial class EvolutionManager : Node2D
         _monkeyStrategies = newMonkeyStrategies;
     }
 
-    private Strategy CreateRandomStrategy()
-    {
-        List<BehaviourNode> behaviourNodesRoot = new List<BehaviourNode>();
 
-        for (int i = 0; i < _randomStrategySequenceLenght; i++)
+    // Strategy generation
+    private Strategy CreateRandomStrategy(CharacterType characterType)
+    {
+        return new Strategy(CreateRandomBehaviourTree(characterType, 0));
+    }
+
+    private BehaviourNode CreateRandomBehaviourTree(CharacterType characterType, int currentDepth)
+    {
+        int maxDepth = 4;
+
+        if (currentDepth >= maxDepth)
         {
-            //Crear behaviours nuevos cada vez
-            //BehaviourNode randomBehaviourNode = behaviourNodes[GD.RandRange(0, behaviourNodes.Count - 1)];
-            //behaviourNodesRoot.Add(randomBehaviourNode);
+            return GetRandomLeafNode(characterType);
         }
 
-        BehaviourNode root = new SequenceNode(behaviourNodesRoot);
+        List<BehaviourNode> childNodes = new List<BehaviourNode>();
 
-        Strategy strategy = new Strategy(root);
+        int numberOfChildren = GD.RandRange(1, 3);
 
-        return strategy;
+        for (int i = 0; i < numberOfChildren; i++)
+        {
+            childNodes.Add(CreateRandomBehaviourTree(characterType, currentDepth + 1));
+        }
+
+        return new SequenceNode(childNodes);
+    }
+
+    private BehaviourNode GetRandomLeafNode(CharacterType characterType)
+    {
+        // Select a random action or condition node based on character type
+        return characterType == CharacterType.Kangaroo
+            ? _behavioursPoolKangaroo[GD.RandRange(0, _behavioursPoolKangaroo.Count - 1)]
+            : _behavioursPoolMonkey[GD.RandRange(0, _behavioursPoolMonkey.Count - 1)];
     }
 }

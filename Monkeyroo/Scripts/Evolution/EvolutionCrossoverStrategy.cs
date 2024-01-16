@@ -1,42 +1,88 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Character.BehaviourTree;
+using Godot;
 
 namespace Character;
 
 public class EvolutionCrossoverStrategy
 {
-    private Random rng;
+	private Random rng;
 
-    public EvolutionCrossoverStrategy()
-    {
-        rng = new Random();
-    }
+	public EvolutionCrossoverStrategy()
+	{
+		rng = new Random();
+	}
 
-    public Strategy Crossover(Strategy parent1, Strategy parent2)
-    {
-        /*List<MoveGene> moves = new List<MoveGene>();
+	public Strategy Crossover(Strategy parent1, Strategy parent2)
+	{
+		BehaviourNode tree1 = parent1.TreeRoot.Clone();
+		BehaviourNode tree2 = parent2.TreeRoot.Clone();
 
-        int minLength = Math.Min(parent1.MovesSequence.Count, parent2.MovesSequence.Count);
-        int maxLength = Math.Max(parent1.MovesSequence.Count, parent2.MovesSequence.Count);
+		// Select random subtree from each tree
+		BehaviourNode subtree1 = SelectRandomSubtree(tree1, rng.Next(1, 4));
+		BehaviourNode subtree2 = SelectRandomSubtree(tree2, rng.Next(1, 4));
 
-        // Loop through the genes up to the minimum length, randomly selecting from each parent
-        for (int i = 0; i < minLength; i++)
-        {
-            moves.Add(rng.NextDouble() < 0.5 ? parent1.MovesSequence[i] : parent2.MovesSequence[i]);
-        }
+		// Swap the subtrees
+		DoSubtreeSwap(tree1, subtree1, subtree2);
+		DoSubtreeSwap(tree2, subtree2, subtree1);
 
-        // If the parents have different lengths, go through the remaining length and randomly select if enters, and from which parent
-        for (int i = minLength; i < maxLength; i++)
-        {
-            if (rng.NextDouble() < 0.5) continue;
+		// Return the new strategy
+		return new Strategy(rng.NextDouble() < 0.5 ? tree1 : tree2);
+	}
 
-            Strategy chosenParent = rng.NextDouble() < 0.5 ? parent1 : parent2;
-            moves.Add(chosenParent.MovesSequence[i % chosenParent.MovesSequence.Count]);
-        }
+	private BehaviourNode SelectRandomSubtree(BehaviourNode root, int targetDepth)
+	{
+		List<BehaviourNode> nodesAtTargetDepth = new List<BehaviourNode>();
 
-        Strategy offspringStrategy = new Strategy(moves);
-        return offspringStrategy;*/
+		CollectNodesAtDepth(root, targetDepth, 0, nodesAtTargetDepth);
 
-        return new Strategy(new BehaviourTree.SequenceNode(new List<BehaviourTree.BehaviourNode>()));
-    }
+		if (nodesAtTargetDepth.Count == 0)
+		{
+			throw new InvalidOperationException("No nodes found at the specified depth.");
+		}
+
+		// Randomly select a node from the list, obligating it to be a sequence node
+		return nodesAtTargetDepth[rng.Next(0, nodesAtTargetDepth.Count)];
+	}
+
+	private void CollectNodesAtDepth(BehaviourNode node, int targetDepth, int currentDepth, List<BehaviourNode> nodeList)
+	{
+		if (node is not SequenceNode sequenceNode) return;
+
+		if (currentDepth == targetDepth)
+		{
+			nodeList.Add(node);
+			return; // Stop going deeper as we reached the target depth
+		}
+
+		// Traverse to the next level
+		foreach (BehaviourNode child in sequenceNode.Children)
+		{
+			CollectNodesAtDepth(child, targetDepth, currentDepth + 1, nodeList);
+		}
+	}
+
+	private void DoSubtreeSwap(BehaviourNode root, BehaviourNode subtree1, BehaviourNode subtree2)
+	{
+		if (root is SequenceNode sequenceNode)
+		{
+			try
+			{
+				sequenceNode.ReplaceChild(subtree1, subtree2);
+			}
+			catch (InvalidOperationException ex)
+			{
+				// Handle the case where the oldSubtree is not found
+				// This might involve searching deeper in the tree
+			}
+		}
+		else
+		{
+			//ASSert
+
+			Debug.Assert(false, "Root node is not a sequence node.");
+		}
+	}
 }

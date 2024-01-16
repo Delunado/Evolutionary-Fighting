@@ -16,4 +16,9 @@ public class ConditionNode : BehaviourNode
     {
         return _condition.Check(character) ? NodeStatus.Success : NodeStatus.Failure;
     }
+
+    public override BehaviourNode Clone()
+    {
+        return new ConditionNode(_condition);
+    }
 }

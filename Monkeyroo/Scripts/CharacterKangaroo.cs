@@ -14,27 +14,6 @@ public partial class CharacterKangaroo : Character
     private bool _isJumping = false;
     private bool _finishedJump = false;
 
-    public CharacterKangaroo()
-    {
-        //MOVE THIS TO EVOLUTION MANAGER OR STRATEGY MANAGER U OTRO LADO, YA NO ES DEPENDIENTE DEL CHARACTER
-
-        ConditionNode nearEnemyCondition = new ConditionNode(new EnemyNearCondition());
-        ConditionNode farFromEnemyCondition = new ConditionNode(new EnemyFarCondition());
-        ActionNode moveFrontAction = new ActionNode(new MoveFrontAction());
-        ActionNode moveBackAction = new ActionNode(new MoveBackAction());
-        ActionNode attackPunchAction = new ActionNode(new PunchAttackAction());
-        ActionNode attackKickAction = new ActionNode(new KickAttackAction());
-        ActionNode jumpAction = new ActionNode(new JumpAction());
-
-        _behavioursPool.Add(nearEnemyCondition);
-        _behavioursPool.Add(farFromEnemyCondition);
-        _behavioursPool.Add(moveFrontAction);
-        _behavioursPool.Add(moveBackAction);
-        _behavioursPool.Add(attackPunchAction);
-        _behavioursPool.Add(attackKickAction);
-        _behavioursPool.Add(jumpAction);
-    }
-
     public override void _Ready()
     {
         InitialConfiguration();

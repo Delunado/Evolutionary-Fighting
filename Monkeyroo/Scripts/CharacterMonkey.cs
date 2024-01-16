@@ -18,25 +18,6 @@ public partial class CharacterMonkey : Character
     private bool _isDucking = false;
     private bool _finishedDuck = false;
 
-    public CharacterMonkey()
-    {
-        ConditionNode nearEnemyCondition = new ConditionNode(new EnemyNearCondition());
-        ConditionNode farFromEnemyCondition = new ConditionNode(new EnemyFarCondition());
-        ActionNode moveFrontAction = new ActionNode(new MoveFrontAction());
-        ActionNode moveBackAction = new ActionNode(new MoveBackAction());
-        ActionNode attackPunchAction = new ActionNode(new PunchAttackAction());
-        ActionNode attackHighPunch = new ActionNode(new HighPunchAttackAction());
-        ActionNode duckAction = new ActionNode(new DuckAction());
-
-        _behavioursPool.Add(nearEnemyCondition);
-        _behavioursPool.Add(farFromEnemyCondition);
-        _behavioursPool.Add(moveFrontAction);
-        _behavioursPool.Add(moveBackAction);
-        _behavioursPool.Add(attackPunchAction);
-        _behavioursPool.Add(attackHighPunch);
-        _behavioursPool.Add(duckAction);
-    }
-
     public override void _Ready()
     {
         InitialConfiguration();
